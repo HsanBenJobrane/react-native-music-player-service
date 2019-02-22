@@ -278,6 +278,16 @@ export default class MusicPlayerService {
         if (this.isPlaying) {
           this._playTrack();
         }
+      } else {
+        let track = this.queue[this.currentIndex];
+
+        if (this._onNext) {
+          this._onNext(track);
+        }
+
+        if (this.isPlaying) {
+          this._playTrack();
+        }
       }
     } catch (error) {
       if (this._onError) {
