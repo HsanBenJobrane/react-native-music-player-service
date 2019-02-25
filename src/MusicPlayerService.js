@@ -257,10 +257,10 @@ export default class MusicPlayerService {
     }
   }
 
-  playNext(): void {
+  playNext(force = false): void {
     try {
       let lastIndex = this.currentIndex;
-      this._setNextTrack();
+      this._setNextTrack(force);
 
       if (lastIndex !== this.currentIndex) {
         this._releaseTrack();
@@ -296,10 +296,10 @@ export default class MusicPlayerService {
     }
   }
 
-  playPrev(): void {
+  playPrev(force = false): void {
     try {
       let lastIndex = this.currentIndex;
-      this._setPreviousTrack();
+      this._setPreviousTrack(force);
 
       if (lastIndex !== this.currentIndex) {
         this._releaseTrack();
@@ -311,6 +311,16 @@ export default class MusicPlayerService {
         }
 
         if (this._onPrevious) {
+          this._onPrevious(track);
+        }
+
+        if (this.isPlaying) {
+          this._playTrack();
+        }
+      } else {
+        let track = this.queue[this.currentIndex];
+
+        if (this._onNext) {
           this._onPrevious(track);
         }
 
@@ -581,11 +591,15 @@ export default class MusicPlayerService {
     return this.currentIndex - 1;
   }
 
-  _setNextTrack(): void {
+  _setNextTrack(force): void {
     let nextIndex = this.currentIndex;
     switch (this.repeatMode) {
       case RepeatModes.None:
         nextIndex = this._getNextNoneRepeatMode();
+        break;
+      case RepeatModes.One:
+        if (force)
+          nextIndex = this._getNextNoneRepeatMode();
         break;
       case RepeatModes.All:
         nextIndex = this._getNextAllRepeatMode();
@@ -595,11 +609,15 @@ export default class MusicPlayerService {
     this.currentIndex = nextIndex;
   }
 
-  _setPreviousTrack(): void {
+  _setPreviousTrack(force): void {
     let nextIndex = this.currentIndex;
     switch (this.repeatMode) {
       case RepeatModes.None:
         nextIndex = this._getPrevNoneRepeatMode();
+        break;
+      case RepeatModes.One:
+        if (force)
+         nextIndex = this._getPrevNoneRepeatMode();
         break;
       case RepeatModes.All:
         nextIndex = this._getPrevAllRepeatMode();
